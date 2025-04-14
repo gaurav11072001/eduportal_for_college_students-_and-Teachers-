@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Teacher Home</title>
+</head>
+
+<body>
+    <h2>Welcome, Teacher</h2>
+
+    <!-- Logout Link -->
+    <a href="{{ url_for('logout') }}">Logout</a><br><br>
+
+    <!-- Link to add a new question -->
+    <a href="{{ url_for('add_question') }}">Add New Question</a><br><br>
+
+    <h3>Questions List</h3>
+    <ul>
+        {% for question in questions %}
+        <li>
+            <p>{{ question.question_text }}</p>
+            <!-- Move the "Update Question" button below the question text -->
+            <a href="{{ url_for('update_question', question_id=question.id) }}"
+                style="display:block; margin-top: 10px;">
+                <button>Update Question</button>
+            </a><br>
+        </li>
+        {% endfor %}
+    </ul>
+
+</body>
+
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Your Marksheet - EduPortal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fc;
+            font-family: 'Nunito', sans-serif;
+        }
+        .container {
+            max-width: 800px;
+            margin-top: 2rem;
+        }
+        .card {
+            border: none;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        }
+        .card-header {
+            background: #1a237e;
+            color: white;
+        }
+        .form-label {
+            font-weight: 500;
+        }
+        .upload-info {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+        .result-info {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 0.25rem;
+            margin-bottom: 1.5rem;
+        }
+        .grade {
+            font-weight: bold;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            display: inline-block;
+        }
+        .grade-a-plus { background-color: #28a745; color: white; }
+        .grade-a { background-color: #20c997; color: white; }
+        .grade-b-plus { background-color: #17a2b8; color: white; }
+        .grade-b { background-color: #007bff; color: white; }
+        .grade-c { background-color: #ffc107; color: black; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Back Button -->
+        <div class="mb-4">
+            <a href="{{ url_for('view_semester_results') }}" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left"></i> Back to Results
+            </a>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="fas fa-upload me-2"></i>Upload Your Marksheet</h4>
+            </div>
+            <div class="card-body">
+                <div class="result-info">
+                    <h5>Result Details</h5>
+                    <p><strong>Semester:</strong> {{ result.semester }}</p>
+                    <p><strong>Subject:</strong> {{ result.subject }}</p>
+                    <p><strong>Marks:</strong> {{ result.marks }}/{{ result.max_marks }}</p>
+                    <p><strong>Percentage:</strong> {{ "%.1f"|format(result.marks/result.max_marks * 100) }}%</p>
+                    <p>
+                        <strong>Grade:</strong> 
+                        <span class="grade grade-{{ result.grade.lower().replace('+', '-plus') }}">
+                            {{ result.grade }}
+                        </span>
+                    </p>
+                    <p><strong>Date:</strong> {{ result.result_date.strftime('%B %d, %Y') }}</p>
+                    
+                    {% if result.marksheet_file %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        You have already uploaded a marksheet for this result. Uploading a new one will replace the existing file.
+                        <br>
+                        <a href="{{ url_for('static', filename=result.marksheet_file) }}" target="_blank" class="alert-link">
+                            <i class="fas fa-file-alt me-1"></i>View Current Marksheet
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <form method="POST" action="{{ url_for('upload_student_marksheet', result_id=result.id) }}" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="marksheet_file" class="form-label">Upload Your Marksheet</label>
+                        <input type="file" class="form-control" id="marksheet_file" name="marksheet_file" accept=".pdf,.jpg,.jpeg,.png" required>
+                        <div class="upload-info">
+                            Accepted formats: PDF, JPG, JPEG, PNG (Max size: 5MB)
+                        </div>
+                    </div>
+
+                    <div class="text-end">
+                        <button type="button" class="btn btn-secondary me-2" onclick="window.history.back()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-upload me-2"></i>Upload Marksheet
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

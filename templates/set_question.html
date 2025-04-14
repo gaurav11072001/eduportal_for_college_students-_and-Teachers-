@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Set Question</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='set.css') }}">
+</head>
+
+<body>
+    <div class="container">
+        <h2>Set Question</h2>
+        <form method="post">
+            <!-- Question Text -->
+            <textarea name="question" placeholder="Enter question" required></textarea><br>
+
+            <!-- Multiple Choice Options -->
+            <label for="option1">Option 1:</label><br>
+            <input type="text" id="option1" name="option1" placeholder="Enter option 1" required><br>
+
+            <label for="option2">Option 2:</label><br>
+            <input type="text" id="option2" name="option2" placeholder="Enter option 2" required><br>
+
+            <label for="option3">Option 3:</label><br>
+            <input type="text" id="option3" name="option3" placeholder="Enter option 3" required><br>
+
+            <label for="option4">Option 4:</label><br>
+            <input type="text" id="option4" name="option4" placeholder="Enter option 4" required><br>
+
+            <!-- Correct Option Selection -->
+            <label for="correct_option">Correct Answer:</label><br>
+            <select name="correct_option" required>
+                <option value="option1">Option 1</option>
+                <option value="option2">Option 2</option>
+                <option value="option3">Option 3</option>
+                <option value="option4">Option 4</option>
+            </select><br>
+
+            <button type="submit">Add Question</button>
+        </form>
+        <a href="{{ url_for('teacher_home') }}" class="back-button">Back</a>
+    </div>
+</body>
+
+</html>

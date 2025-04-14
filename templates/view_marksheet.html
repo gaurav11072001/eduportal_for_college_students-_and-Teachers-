@@ -1,0 +1,6 @@
+<h3>Marksheet</h3>
+{% if score %}
+    <a href="{{ url_for('view_marksheet', score_id=score.id) }}" class="btn btn-secondary">View Marksheet</a>
+{% else %}
+    <p>No score available yet.</p>
+{% endif %}

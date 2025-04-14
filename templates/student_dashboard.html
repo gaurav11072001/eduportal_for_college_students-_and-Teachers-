@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - EduPortal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4e73df;
+            --secondary-color: #858796;
+            --success-color: #1cc88a;
+        }
+        
+        body {
+            background-color: #f8f9fc;
+            font-family: 'Nunito', sans-serif;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 250px;
+            background: linear-gradient(180deg, var(--primary-color) 10%, #224abe 100%);
+            padding-top: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sidebar nav {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+        
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 1rem;
+            margin: 0.2rem 1rem;
+            border-radius: 0.35rem;
+            transition: all 0.3s;
+        }
+        
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar .nav-link i {
+            margin-right: 0.5rem;
+            width: 1.5rem;
+            text-align: center;
+        }
+        
+        /* Main Content Styles */
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+        
+        .topbar {
+            background: white;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            padding: 1rem;
+            margin-bottom: 2rem;
+            border-radius: 0.35rem;
+        }
+        
+        .card {
+            border: none;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            border-radius: 0.35rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-header {
+            background: white;
+            border-bottom: 1px solid #e3e6f0;
+            padding: 1rem;
+        }
+        
+        .event-card {
+            transition: transform 0.3s ease;
+        }
+        
+        .event-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .event-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-top-left-radius: 0.35rem;
+            border-top-right-radius: 0.35rem;
+        }
+        
+        .btn-register {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 0.35rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-register:hover {
+            background: #224abe;
+            transform: translateY(-2px);
+        }
+        
+        .btn-register:disabled {
+            background: var(--secondary-color);
+            cursor: not-allowed;
+        }
+        
+        /* Profile Section */
+        .profile-section {
+            text-align: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 1rem;
+        }
+        
+        .profile-icon {
+            font-size: 3rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 1rem;
+        }
+        
+        .profile-name {
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+        
+        .profile-role {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .nav-link {
+            cursor: pointer;
+        }
+
+        .btn-link {
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-link:hover {
+            text-decoration: none;
+        }
+
+        /* Add this for the registration button */
+        .btn-register {
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn-register[disabled] {
+            cursor: not-allowed;
+        }
+
+        .event-placeholder {
+            background: #f8f9fa;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-top-left-radius: 0.35rem;
+            border-top-right-radius: 0.35rem;
+        }
+
+        .event-placeholder-icon {
+            font-size: 4rem;
+            color: #dee2e6;
+        }
+
+        /* Logout button styles */
+        .logout-btn {
+            background: rgba(220, 53, 69, 0.2);
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .logout-btn:hover {
+            background: rgba(220, 53, 69, 0.4);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="profile-section">
+            <i class="fas fa-user-circle profile-icon"></i>
+            <h5 class="profile-name">{{ user.full_name }}</h5>
+            <div class="profile-role">{{ user.branch }} - {{ user.semester }} Semester</div>
+        </div>
+        
+        <nav>
+            <a href="#" class="nav-link" onclick="showSection('dashboard'); return false;">
+                <i class="fas fa-fw fa-tachometer-alt"></i>
+                Dashboard
+            </a>
+            <a href="#" class="nav-link" onclick="showSection('events'); return false;">
+                <i class="fas fa-fw fa-calendar-alt"></i>
+                co-curricular activities
+            </a>
+            <a href="#" class="nav-link" onclick="showSection('scores'); return false;">
+                <i class="fas fa-chart-bar"></i>
+                <span>Exam Scores</span>
+            </a>
+            <a href="{{ url_for('view_semester_results') }}" class="nav-link">
+                <i class="fas fa-graduation-cap"></i>
+                <span>Semester Results</span>
+            </a>
+            <a href="#" class="nav-link" onclick="showSection('give-exam'); return false;">
+                <i class="fas fa-pen me-2"></i>
+                Give Exam
+            </a>
+            <a href="#" class="nav-link" onclick="showSection('notices'); return false;">
+                <i class="fas fa-bell me-2"></i>
+                Notices
+            </a>
+            <form action="{{ url_for('logout') }}" method="POST" class="nav-link" style="margin-top: auto; margin-bottom: 20px;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="nav-link w-100 text-white border-0 logout-btn">
+                    <i class="fas fa-fw fa-sign-out-alt"></i>
+                    Logout
+                </button>
+            </form>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Topbar -->
+        <div class="topbar d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">Student Dashboard</h4>
+            <div class="d-flex align-items-center">
+                <div class="me-3">
+                    <i class="fas fa-bell text-muted"></i>
+                </div>
+                <div>
+                    <i class="fas fa-user-circle text-muted"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Dashboard Section -->
+        <div id="dashboard" class="content-section">
+            <!-- Stats Overview -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-subtitle mb-2 text-muted">Active Events</h6>
+                            <h2 class="card-title mb-0">{{ events|length }}</h2>
+                            <small class="text-muted">Available to register</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-subtitle mb-2 text-muted">My Registrations</h6>
+                            <h2 class="card-title mb-0">{{ registered_events|length }}</h2>
+                            <small class="text-muted">Events registered</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-subtitle mb-2 text-muted">Exam Scores</h6>
+                            <h2 class="card-title mb-0">{{ student_scores|length }}</h2>
+                            <small class="text-muted">Exams completed</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Events -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-calendar-check me-2"></i>Recent Events</h5>
+                </div>
+                <div class="card-body">
+                    {% if events %}
+                        <div class="list-group">
+                            {% for event in events[:3] %}
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-1">{{ event.title }}</h6>
+                                            <p class="mb-1 text-muted">{{ event.description[:100] }}...</p>
+                                            <small class="text-muted">
+                                                <i class="fas fa-calendar-alt me-1"></i>
+                                                {{ event.event_date.strftime('%B %d, %Y') }}
+                                            </small>
+                                        </div>
+                                        {% if event.id in registered_events %}
+                                            <span class="badge bg-success">Registered</span>
+                                        {% else %}
+                                            <form method="POST" action="{{ url_for('register_participant', event_id=event.id) }}" class="d-inline">
+                                                <button type="submit" class="btn btn-primary btn-sm"
+                                                        onclick="return confirm('Are you sure you want to register for this event?')">
+                                                    Register
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        {% if events|length > 3 %}
+                            <div class="text-center mt-3">
+                                <a href="#" onclick="showSection('events'); return false;" class="btn btn-link">View All Events</a>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="alert alert-info mb-0">
+                            <i class="fas fa-info-circle me-2"></i>
+                            No events available at the moment.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Recent Notices -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-bell me-2"></i>Recent Notices</h5>
+                </div>
+                <div class="card-body">
+                    {% if notices %}
+                        <div class="list-group">
+                            {% for notice in notices[:3] %}
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ notice.title }}</h6>
+                                        <small class="text-muted">{{ notice.created_at.strftime('%B %d, %Y') }}</small>
+                                    </div>
+                                    <p class="mb-1">{{ notice.content }}</p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        {% if notices|length > 3 %}
+                            <div class="text-center mt-3">
+                                <a href="#" onclick="showSection('notices'); return false;" class="btn btn-link">View All Notices</a>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="alert alert-info mb-0">
+                            <i class="fas fa-info-circle me-2"></i>
+                            No notices available at the moment.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sports Events Section -->
+        <div id="events" class="content-section">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>Upcoming co-curricular activities</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% if events %}
+                            {% for event in events %}
+                                <div class="col-md-4 mb-4">
+                                    <div class="card event-card">
+                                        {% if event.image_path %}
+                                            <img src="{{ url_for('static', filename=event.image_path) }}"
+                                                 class="event-image" 
+                                                 alt="{{ event.title }}"
+                                                 onerror="handleImageError(this)">
+                                        {% else %}
+                                            <div class="event-placeholder">
+                                                <i class="fas fa-calendar-alt event-placeholder-icon"></i>
+                                            </div>
+                                        {% endif %}
+                                        <div class="card-body">
+                                            <h5 class="card-title">{{ event.title }}</h5>
+                                            <p class="card-text text-muted">{{ event.description[:100] }}...</p>
+                                            <p class="card-text">
+                                                <small class="text-muted">
+                                                    <i class="fas fa-calendar-alt me-2"></i>
+                                                    {{ event.event_date.strftime('%B %d, %Y') }}
+                                                </small>
+                                            </p>
+                                            <form method="POST" action="{{ url_for('register_participant', event_id=event.id) }}" style="display: inline;">
+                                                <button type="submit" 
+                                                        class="btn btn-register" 
+                                                        {% if event.id in registered_events %}disabled{% endif %}
+                                                        onclick="return confirm('Are you sure you want to register for this event?')">
+                                                    {% if event.id in registered_events %}
+                                                        <i class="fas fa-check me-2"></i>Already Registered
+                                                    {% else %}
+                                                        <i class="fas fa-plus me-2"></i>Register Now
+                                                    {% endif %}
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="col-12">
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>
+                               no co-curricular activities available at the moment.
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Exam Scores Section -->
+        <div id="scores" class="content-section">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>My Exam Scores</h5>
+                </div>
+                <div class="card-body">
+                    {% if student_scores %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Subject</th>
+                                        <th>Score</th>
+                                        <th>Total Marks</th>
+                                        <th>Percentage</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for score in student_scores %}
+                                        <tr>
+                                            <td>{{ score.subject }}</td>
+                                            <td>{{ score.marks }}</td>
+                                            <td>{{ score.max_marks }}</td>
+                                            <td>
+                                                <span class="badge bg-{% if (score.marks/score.max_marks * 100) >= 60 %}success{% else %}warning{% endif %}">
+                                                    {{ "%.1f"|format(score.marks/score.max_marks * 100) }}%
+                                                </span>
+                                            </td>
+                                            <td>{{ score.exam_date.strftime('%B %d, %Y') }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            You haven't taken any exams yet.
+                            <a href="{{ url_for('give_exam') }}" class="alert-link">Take an exam now!</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Give Exam Section -->
+        <div id="give-exam" class="content-section">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-pen me-2"></i>Take Exam</h5>
+                </div>
+                <div class="card-body">
+                    {% if questions %}
+                        <div class="alert alert-info mb-4">
+                            <i class="fas fa-info-circle me-2"></i>
+                            You have {{ questions|length }} new questions available.
+                            <hr>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>
+                                    <i class="fas fa-clock me-2"></i>Time Limit: 
+                                    {% if active_setting %}
+                                        {{ active_setting.time_limit }} minutes
+                                    {% else %}
+                                        60 minutes
+                                    {% endif %}
+                                </span>
+                                <a href="{{ url_for('give_exam') }}" class="btn btn-primary">
+                                    <i class="fas fa-play me-2"></i>Start Exam Now
+                                </a>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            No exams are currently available. Please check back later.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Notices Section -->
+        <div id="notices" class="content-section">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-bell me-2"></i>Notices</h5>
+                </div>
+                <div class="card-body">
+                    {% if notices %}
+                        <div class="list-group">
+                            {% for notice in notices %}
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ notice.title }}</h6>
+                                        <small class="text-muted">
+                                            {{ notice.created_at.strftime('%B %d, %Y') }}
+                                        </small>
+                                    </div>
+                                    <p class="mb-1">{{ notice.content }}</p>
+                                    <small class="text-muted">Posted by: {{ notice.author.full_name }}</small>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            No notices available at the moment.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions Section -->
+        <div id="quick-actions" class="content-section">
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="fas fa-tasks me-2"></i>Quick Actions</h5>
+                            <div class="list-group mt-3">
+                                <a href="{{ url_for('give_exam') }}" class="list-group-item list-group-item-action">
+                                    <i class="fas fa-pen me-2"></i>Take New Exam
+                                </a>
+                                {% if student_scores %}
+                                    <a href="#" class="list-group-item list-group-item-action">
+                                        <i class="fas fa-chart-line me-2"></i>View Progress Report
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="fas fa-star me-2"></i>Performance Summary</h5>
+                            {% if student_scores %}
+                                {% set total_exams = student_scores|length %}
+                                {% set total_score = namespace(value=0) %}
+                                {% for score in student_scores %}
+                                    {% set total_score.value = total_score.value + (score.marks/score.max_marks * 100) %}
+                                {% endfor %}
+                                {% set average_score = total_score.value / total_exams %}
+                                
+                                <div class="text-center mt-3">
+                                    <h2 class="mb-0">{{ "%.1f"|format(average_score) }}%</h2>
+                                    <p class="text-muted">Average Score</p>
+                                    <p class="mb-0">Total Exams Taken: {{ total_exams }}</p>
+                                </div>
+                            {% else %}
+                                <p class="text-center text-muted mt-3">
+                                    No exam data available yet.
+                                </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Function to show/hide sections
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).style.display = 'block';
+            
+            // Update active nav link
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+        }
+
+        // Function to handle event registration
+        function registerForEvent(eventId) {
+            if (confirm('Are you sure you want to register for this event?')) {
+                // Create a form to submit the POST request
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/register_participant/${eventId}`;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+
+        // Function to handle image loading errors
+        function handleImageError(img) {
+            // Remove any existing error handlers to prevent loops
+            img.onerror = null;
+            
+            // Replace with default image
+            img.src = "{{ url_for('static', filename='images/default-event.jpg') }}";
+            
+            // Add placeholder class if the default image also fails
+            img.addEventListener('error', function() {
+                const placeholder = document.createElement('div');
+                placeholder.className = 'event-placeholder';
+                placeholder.innerHTML = '<i class="fas fa-calendar-alt event-placeholder-icon"></i>';
+                img.parentNode.replaceChild(placeholder, img);
+            });
+        }
+
+        // Show dashboard by default
+        document.addEventListener('DOMContentLoaded', function() {
+            showSection('dashboard');
+            document.querySelector('.nav-link').classList.add('active');
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,85 @@
+<!-- templates/edit_question.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Question</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/teacher.css') }}">
+</head>
+
+<body>
+    <div class="container mt-5">
+        <h2>Edit Question</h2>
+
+        <!-- Flash message for success or error -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="alert alert-{{ messages[0][0] }}">
+            {{ messages[0][1] }}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <!-- Form to edit the question -->
+        <form method="POST" action="{{ url_for('edit_question', question_id=question.id) }}">
+            <div class="mb-3">
+                <label for="question_text" class="form-label">Question Text</label>
+                <textarea class="form-control" id="question_text" name="question_text" required>{{ question.question_text }}</textarea>
+            </div>
+            <div class="mb-3">
+                <label for="option1" class="form-label">Option 1</label>
+                <input type="text" class="form-control" id="option1" name="option1" value="{{ question.option1 }}"
+                    required>
+            </div>
+            <div class="mb-3">
+                <label for="option2" class="form-label">Option 2</label>
+                <input type="text" class="form-control" id="option2" name="option2" value="{{ question.option2 }}"
+                    required>
+            </div>
+            <div class="mb-3">
+                <label for="option3" class="form-label">Option 3</label>
+                <input type="text" class="form-control" id="option3" name="option3" value="{{ question.option3 }}"
+                    required>
+            </div>
+            <div class="mb-3">
+                <label for="option4" class="form-label">Option 4</label>
+                <input type="text" class="form-control" id="option4" name="option4" value="{{ question.option4 }}"
+                    required>
+            </div>
+            <div class="mb-3">
+                <label for="correct_answer" class="form-label">Correct Answer</label>
+                <select class="form-control" id="correct_answer" name="correct_answer" required>
+                    <option value="option1" {% if correct_option == 'option1' %}selected{% endif %}>Option 1</option>
+                    <option value="option2" {% if correct_option == 'option2' %}selected{% endif %}>Option 2</option>
+                    <option value="option3" {% if correct_option == 'option3' %}selected{% endif %}>Option 3</option>
+                    <option value="option4" {% if correct_option == 'option4' %}selected{% endif %}>Option 4</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="time_limit" class="form-label">Time Limit (seconds)</label>
+                <input type="number" class="form-control" id="time_limit" name="time_limit" value="{{ question.time_limit|default(30) }}" min="1" max="120" required>
+                <small class="form-text text-muted">Time allowed for this specific question (1-120 seconds)</small>
+            </div>
+
+            <div class="mb-3">
+                <label for="exam_time_limit" class="form-label">Exam Time Limit (minutes)</label>
+                <input type="number" class="form-control" id="exam_time_limit" name="exam_time_limit" value="{{ question.exam_time_limit|default(60) }}" min="1" max="180" required>
+                <small class="form-text text-muted">Total time allowed for the entire exam (1-180 minutes)</small>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="btn btn-primary">Update Question</button>
+                <a href="{{ url_for('teacher_dashboard') }}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+</body>
+
+</html>

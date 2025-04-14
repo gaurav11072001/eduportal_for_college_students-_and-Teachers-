@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Exam</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fc;
+            font-family: 'Nunito', sans-serif;
+            padding-bottom: 60px;
+        }
+        
+        .timer-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #fff;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 1000;
+            border: 2px solid #1a237e;
+        }
+        
+        .timer {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1a237e;
+            text-align: center;
+        }
+        
+        .timer.warning {
+            color: #ffc107;
+            animation: pulse 1s infinite;
+        }
+        
+        .timer.danger {
+            color: #dc3545;
+            animation: pulse 0.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .question-container {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .question-container:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+            transition: all 0.3s ease;
+        }
+        
+        .options {
+            margin-left: 25px;
+            margin-top: 15px;
+        }
+        
+        .form-check {
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .form-check:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .form-check-input {
+            cursor: pointer;
+        }
+        
+        .form-check-input:checked {
+            background-color: #1a237e;
+            border-color: #1a237e;
+        }
+        
+        .form-check-label {
+            cursor: pointer;
+            width: 100%;
+            margin-left: 10px;
+        }
+
+        .submit-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 15px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            z-index: 1000;
+        }
+
+        .submit-btn {
+            padding: 12px 40px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .exam-info {
+            background: #1a237e;
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .progress {
+            height: 8px;
+            margin-top: 10px;
+        }
+
+        #questionProgress {
+            font-size: 0.9rem;
+            color: #e0e0e0;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container mt-5">
+        <!-- Timer -->
+        <div class="timer-container">
+            <div class="text-center mb-1">
+                <i class="fas fa-clock me-2"></i>Time Remaining
+            </div>
+            <div id="timer" class="timer"></div>
+        </div>
+
+        <!-- Exam Information -->
+        <div class="exam-info">
+            <h4 class="mb-3">
+                <i class="fas fa-pen-alt me-2"></i>{{ exam_name }}
+            </h4>
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <i class="fas fa-question-circle me-2"></i>
+                    Total Questions: <strong>{{ questions|length }}</strong>
+                </div>
+                <div>
+                    <i class="fas fa-hourglass-half me-2"></i>
+                    Time Limit: <strong>{{ time_limit_minutes }} minutes</strong>
+                </div>
+            </div>
+            <div class="progress mt-3">
+                <div id="progressBar" class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
+            </div>
+            <div id="questionProgress" class="text-end"></div>
+        </div>
+
+        <!-- Exam Form -->
+        {% if questions %}
+        <form id="examForm" method="POST" action="{{ url_for('submit_exam') }}">
+            {% for question in questions %}
+            <div class="question-container">
+                <h5 class="mb-3">
+                    <span class="badge bg-primary me-2">Q{{ loop.index }}</span>
+                    {{ question.question_text }}
+                </h5>
+                <div class="options">
+                    <div class="form-check">
+                        <input type="radio" class="form-check-input" id="q{{ question.id }}_1" 
+                               name="question_{{ question.id }}" value="option1" required>
+                        <label class="form-check-label" for="q{{ question.id }}_1">
+                            {{ question.option1 }}
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input type="radio" class="form-check-input" id="q{{ question.id }}_2" 
+                               name="question_{{ question.id }}" value="option2">
+                        <label class="form-check-label" for="q{{ question.id }}_2">
+                            {{ question.option2 }}
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input type="radio" class="form-check-input" id="q{{ question.id }}_3" 
+                               name="question_{{ question.id }}" value="option3">
+                        <label class="form-check-label" for="q{{ question.id }}_3">
+                            {{ question.option3 }}
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input type="radio" class="form-check-input" id="q{{ question.id }}_4" 
+                               name="question_{{ question.id }}" value="option4">
+                        <label class="form-check-label" for="q{{ question.id }}_4">
+                            {{ question.option4 }}
+                        </label>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            
+            <div class="submit-container">
+                <button type="submit" class="btn btn-primary btn-lg submit-btn">
+                    <i class="fas fa-paper-plane me-2"></i>Submit Exam
+                </button>
+            </div>
+        </form>
+        {% else %}
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            No questions are available for this exam. Please contact your teacher.
+        </div>
+        {% endif %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Timer functionality
+        const timeLimit = {{ time_limit_minutes }} * 60; // Convert minutes to seconds
+        let timeRemaining = timeLimit;
+        let timerStarted = false;
+        
+        function updateTimer() {
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            const timerElement = document.getElementById('timer');
+            
+            // Format the time
+            const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            timerElement.textContent = timeString;
+            
+            // Add warning colors
+            if (timeRemaining <= 300) { // Last 5 minutes
+                timerElement.classList.remove('warning');
+                timerElement.classList.add('danger');
+                if (timeRemaining === 300) {
+                    showAlert('Warning: 5 minutes remaining!', 'warning');
+                }
+            } else if (timeRemaining <= 600) { // Last 10 minutes
+                timerElement.classList.add('warning');
+                if (timeRemaining === 600) {
+                    showAlert('Warning: 10 minutes remaining!', 'info');
+                }
+            }
+            
+            // Auto-submit when time is up
+            if (timeRemaining <= 0) {
+                showAlert('Time\'s up! Submitting your exam...', 'warning');
+                setTimeout(() => {
+                    document.getElementById('examForm').submit();
+                }, 1000);
+                return;
+            }
+            
+            timeRemaining--;
+        }
+
+        // Start timer immediately when page loads
+        updateTimer();
+        const timerInterval = setInterval(updateTimer, 1000);
+
+        // Track answered questions
+        function updateProgress() {
+            const totalQuestions = {{ questions|length }};
+            const answeredQuestions = document.querySelectorAll('input[type="radio"]:checked').length;
+            const progress = (answeredQuestions / totalQuestions) * 100;
+            
+            document.getElementById('progressBar').style.width = `${progress}%`;
+            document.getElementById('questionProgress').textContent = 
+                `${answeredQuestions} of ${totalQuestions} questions answered`;
+        }
+
+        // Add event listeners to all radio buttons
+        document.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', updateProgress);
+        });
+
+        // Initialize progress
+        updateProgress();
+
+        // Show alerts
+        function showAlert(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3`;
+            alertDiv.style.zIndex = '1050';
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            document.body.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+
+        // Warn user before leaving page
+        window.onbeforeunload = function() {
+            return "Are you sure you want to leave? Your exam progress will be lost.";
+        };
+
+        // Remove warning when submitting form
+        document.getElementById('examForm').onsubmit = function() {
+            window.onbeforeunload = null;
+        };
+    </script>
+</body>
+
+</html>
+</html>

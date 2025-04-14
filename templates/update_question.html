@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Question</title>
+</head>
+<body>
+    <h1>Update Question</h1>
+    <form method="POST">
+        <label for="question_text">Question Text:</label><br>
+        <input type="text" name="question_text" value="{{ question.question_text }}" required><br>
+
+        <h3>Options:</h3>
+        {% if options %}
+            <label for="option1">Option 1:</label><br>
+            <input type="text" name="option1" value="{{ options[0].option_text }}" required><br>
+
+            <label for="option2">Option 2:</label><br>
+            <input type="text" name="option2" value="{{ options[1].option_text }}" required><br>
+
+            <label for="option3">Option 3:</label><br>
+            <input type="text" name="option3" value="{{ options[2].option_text }}" required><br>
+
+            <label for="option4">Option 4:</label><br>
+            <input type="text" name="option4" value="{{ options[3].option_text }}" required><br>
+        {% else %}
+            <p>No options available for this question.</p>
+        {% endif %}
+
+        <br>
+        <button type="submit">Update Question</button>
+    </form>
+</body>
+</html>

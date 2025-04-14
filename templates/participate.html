@@ -1,0 +1,45 @@
+<!-- Event Details Section with Registration Form -->
+<h2>{{ event.title }}</h2>
+<p>{{ event.description }}</p>
+<p><strong>Event Date:</strong> {{ event.event_date }}</p>
+
+<!-- Registration Form for Participants -->
+<h3>Register for this Event</h3>
+<form action="{{ url_for('register_participant', event_id=event.id) }}" method="POST">
+    <div class="mb-3">
+        <label for="name" class="form-label">Name:</label>
+        <input type="text" id="name" name="name" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label for="age" class="form-label">Age:</label>
+        <input type="number" id="age" name="age" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label for="gender" class="form-label">Gender:</label>
+        <select id="gender" name="gender" class="form-control" required>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label for="contact_number" class="form-label">Contact Number (Optional):</label>
+        <input type="text" id="contact_number" name="contact_number" class="form-control">
+    </div>
+
+    <!-- New Fields for Branch and Semester -->
+    <div class="mb-3">
+        <label for="branch" class="form-label">Branch:</label>
+        <input type="text" id="branch" name="branch" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label for="semester" class="form-label">Semester:</label>
+        <input type="text" id="semester" name="semester" class="form-control" required>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Register</button>
+</form>

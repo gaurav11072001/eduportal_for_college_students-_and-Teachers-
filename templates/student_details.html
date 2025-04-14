@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Details - {{ student.full_name }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fc;
+            font-family: 'Nunito', sans-serif;
+        }
+        
+        .container {
+            padding: 2rem;
+        }
+        
+        .card {
+            border: none;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            border-radius: 0.35rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-header {
+            background: #1a237e;
+            color: white;
+            border-bottom: none;
+            padding: 1rem 1.5rem;
+            border-radius: 0.35rem 0.35rem 0 0;
+        }
+        
+        .profile-section {
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .profile-icon {
+            font-size: 5rem;
+            color: #1a237e;
+            margin-bottom: 1rem;
+        }
+        
+        .back-button {
+            margin-bottom: 1rem;
+        }
+        
+        .table th {
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Back Button -->
+        <div class="back-button">
+            <a href="{{ url_for('teacher_dashboard') }}" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+
+        <!-- Student Profile Card -->
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="fas fa-user-graduate me-2"></i>Student Profile</h4>
+            </div>
+            <div class="card-body">
+                <div class="profile-section">
+                    <i class="fas fa-user-circle profile-icon"></i>
+                    <h3>{{ student.full_name }}</h3>
+                    <p class="text-muted mb-2">{{ student.email }}</p>
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <p><strong>Branch:</strong> {{ student.branch }}</p>
+                            <p><strong>Semester:</strong> {{ student.semester }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Joined:</strong> {{ student.created_at.strftime('%B %d, %Y') }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Exam Scores Card -->
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Exam Scores</h4>
+            </div>
+            <div class="card-body">
+                {% if scores %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Test </th>
+                                    <th>Score</th>
+                                    <th>Total Marks</th>
+                                    <th>Percentage</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for score in scores %}
+                                    <tr>
+                                        <td>{{ score.subject }}</td>
+                                        <td>{{ score.marks }}</td>
+                                        <td>{{ score.max_marks }}</td>
+                                        <td>
+                                            <span class="badge bg-{% if (score.marks/score.max_marks * 100) >= 60 %}success{% else %}warning{% endif %}">
+                                                {{ "%.1f"|format(score.marks/score.max_marks * 100) }}%
+                                            </span>
+                                        </td>
+                                        <td>{{ score.exam_date.strftime('%B %d, %Y') }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        No exam scores available for this student.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Delete Account Section -->
+        <div class="text-end mt-4">
+            <button type="button" 
+                    class="btn btn-danger delete-student-btn"
+                    data-student-id="{{ student.id }}"
+                    data-student-name="{{ student.full_name }}">
+                <i class="fas fa-trash me-2"></i>Delete Student Account
+            </button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.delete-student-btn')) {
+                    const btn = e.target.closest('.delete-student-btn');
+                    const studentId = btn.dataset.studentId;
+                    const studentName = btn.dataset.studentName;
+                    
+                    if (confirm(`Are you sure you want to delete ${studentName}'s account? This action cannot be undone.`)) {
+                        deleteStudent(studentId, studentName);
+                    }
+                }
+            });
+        });
+
+        function deleteStudent(studentId, studentName) {
+            fetch(`/delete_student/${studentId}`, {
+                method: 'POST',
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = "{{ url_for('teacher_dashboard') }}";
+                } else {
+                    alert('Error deleting student account');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error deleting student account');
+            });
+        }
+    </script>
+</body>
+</html> 

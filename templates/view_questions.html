@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>View Questions</title>
+</head>
+
+<body>
+    <h2>View Questions</h2>
+
+    <form method="POST">
+        {% for question in questions %}
+        <div>
+            <p>{{ question.question_text }}</p>
+
+            {% for option in question.options %}
+            <input type="radio" name="question_{{ question.id }}" value="{{ option.option_text }}">
+            <label>{{ option.option_text }}</label><br>
+            {% endfor %}
+        </div>
+        {% endfor %}
+
+        <button type="submit">Submit Answers</button>
+    </form>
+
+    <!-- Display Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <ul>
+        {% for category, message in messages %}
+        <li class="{{ category }}">{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+</body>
+
+</html>

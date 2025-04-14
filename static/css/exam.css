@@ -1,0 +1,94 @@
+/* General styling for form */
+form {
+    max-width: 700px;
+    margin: 30px auto;
+    padding: 30px;
+    background-color: #eef2f7;
+    /* Light background color */
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    font-family: Arial, sans-serif;
+}
+
+/* Header Styling */
+h2 {
+    text-align: center;
+    color: #003366;
+    /* Deep blue for a professional tone */
+    font-weight: bold;
+    font-size: 1.8em;
+}
+
+/* Question styling */
+.mb-3 {
+    margin-bottom: 25px;
+}
+
+.mb-3 label {
+    font-weight: bold;
+    font-size: 1.2em;
+    color: #003366;
+    margin-bottom: 10px;
+    display: block;
+}
+
+/* Option styling */
+.form-check {
+    margin-top: 12px;
+    padding-left: 15px;
+}
+
+.form-check-input {
+    margin-right: 12px;
+    transform: scale(1.2);
+    /* Slightly larger for visibility */
+    accent-color: #007bff;
+    /* Blue accent for radio buttons */
+}
+
+.form-check-label {
+    font-size: 1em;
+    color: #333;
+    /* Dark gray for readability */
+}
+
+/* Button styling */
+.btn-primary {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #fff;
+    background-color: #004080;
+    /* Dark blue for a JEE-style button */
+    border: none;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary:hover {
+    background-color: #002f5f;
+    /* Slightly darker on hover */
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    form {
+        padding: 20px;
+    }
+
+    h2 {
+        font-size: 1.5em;
+    }
+
+    .mb-3 label {
+        font-size: 1.1em;
+    }
+
+    .btn-primary {
+        font-size: 1.05em;
+    }
+}

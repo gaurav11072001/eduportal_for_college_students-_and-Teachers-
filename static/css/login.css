@@ -1,0 +1,93 @@
+/* General Styling */
+body {
+    background:
+        linear-gradient(135deg, rgba(0, 198, 255, 0.8), rgba(242, 42, 76, 0.8)),
+        url('a.jpg') no-repeat center center fixed;
+    background-size: cover;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #495057;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+}
+
+/* Container Styling */
+.container {
+    max-width: 450px;
+    padding: 40px 30px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+/* Header Styling */
+h2 {
+    font-size: 2.2rem;
+    margin-bottom: 20px;
+    color: #007bff;
+    font-weight: bold;
+}
+
+/* Alert Styling */
+.alert {
+    margin-top: 20px;
+    font-size: 0.9rem;
+    text-align: left;
+}
+
+/* Button Styling */
+.btn-primary {
+    width: 100%;
+    padding: 12px;
+    font-size: 1rem;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+/* Link Button Styling */
+.btn-link {
+    color: #007bff;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.btn-link:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+/* Input Label Styling */
+.form-label {
+    font-weight: bold;
+    color: #343a40;
+    font-size: 1rem;
+}
+
+/* Form Field Styling */
+.form-control {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ced4da;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.25);
+}
+
+/* Additional Text Styling */
+.mt-3 p {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin-bottom: 10px;
+}

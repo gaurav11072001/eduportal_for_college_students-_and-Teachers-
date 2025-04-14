@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semester Results - EduPortal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fc;
+            font-family: 'Nunito', sans-serif;
+        }
+        .container {
+            max-width: 1200px;
+            margin-top: 2rem;
+        }
+        .card {
+            border: none;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        }
+        .card-header {
+            background: #1a237e;
+            color: white;
+        }
+        .grade {
+            font-weight: bold;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+        }
+        .grade-a-plus { background-color: #28a745; color: white; }
+        .grade-a { background-color: #20c997; color: white; }
+        .grade-b-plus { background-color: #17a2b8; color: white; }
+        .grade-b { background-color: #007bff; color: white; }
+        .grade-c { background-color: #ffc107; color: black; }
+        .marksheet-link {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .marksheet-link:hover {
+            text-decoration: underline;
+        }
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+        }
+        .badge {
+            padding: 0.35em 0.65em;
+            font-size: 0.75em;
+        }
+        .bg-verified {
+            background-color: #28a745;
+            color: white;
+        }
+        .bg-pending {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        .bg-unverified {
+            background-color: #6c757d;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Back Button -->
+        <div class="mb-4">
+            <a href="{{ url_for('student_dashboard' if current_user.role == 'student' else 'teacher_dashboard') }}" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0"><i class="fas fa-graduation-cap me-2"></i>Semester Results</h4>
+                <div>
+                    {% if current_user.role == 'teacher' %}
+                    <a href="{{ url_for('upload_semester_result') }}" class="btn btn-light">
+                        <i class="fas fa-upload me-2"></i>Upload New Result
+                    </a>
+                    {% else %}
+                    <a href="{{ url_for('add_student_result') }}" class="btn btn-light">
+                        <i class="fas fa-plus-circle me-2"></i>Add Your Result
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-body">
+                {% if results %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    {% if current_user.role == 'teacher' %}
+                                        <th>Student Name</th>
+                                    {% endif %}
+                                    <th>Semester</th>
+                                    <th>Subject</th>
+                                    <th>Marks</th>
+                                    <th>Percentage</th>
+                                    <th>Grade</th>
+                                    <th>Date</th>
+                                    <th>Marksheet</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for result in results %}
+                                    <tr>
+                                        {% if current_user.role == 'teacher' %}
+                                            <td>{{ result.student.full_name }}</td>
+                                        {% endif %}
+                                        <td>{{ result.semester }}</td>
+                                        <td>{{ result.subject }}</td>
+                                        <td>{{ result.marks }}/{{ result.max_marks }}</td>
+                                        <td>{{ "%.1f"|format(result.marks/result.max_marks * 100) }}%</td>
+                                        <td>
+                                            <span class="grade grade-{{ result.grade.lower().replace('+', '-plus') }}">
+                                                {{ result.grade }}
+                                            </span>
+                                        </td>
+                                        <td>{{ result.result_date.strftime('%B %d, %Y') }}</td>
+                                        <td>
+                                            {% if result.marksheet_file %}
+                                                <a href="{{ url_for('static', filename=result.marksheet_file) }}" 
+                                                   class="marksheet-link" target="_blank">
+                                                    <i class="fas fa-file-alt me-1"></i>View
+                                                </a>
+                                            {% else %}
+                                                <span class="text-muted">Not available</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if result.verified %}
+                                                <span class="badge bg-success">Verified</span>
+                                            {% else %}
+                                                {% if current_user.id == result.student_id %}
+                                                    <span class="badge bg-warning text-dark">Pending Verification</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">Unverified</span>
+                                                {% endif %}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if current_user.role == 'teacher' %}
+                                                <div class="d-flex">
+                                                    {% if not result.verified and result.created_by == result.student_id %}
+                                                        <form action="{{ url_for('verify_result', result_id=result.id) }}" 
+                                                            method="POST" class="d-inline me-1">
+                                                            <button type="submit" class="btn btn-success btn-sm"
+                                                                    title="Verify this result">
+                                                                <i class="fas fa-check"></i>
+                                                            </button>
+                                                        </form>
+                                                    {% endif %}
+                                                    <form action="{{ url_for('delete_semester_result', result_id=result.id) }}" 
+                                                        method="POST" class="d-inline">
+                                                        <button type="submit" class="btn btn-danger btn-sm"
+                                                                onclick="return confirm('Are you sure you want to delete this result?')">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            {% else %}
+                                                <a href="{{ url_for('upload_student_marksheet', result_id=result.id) }}" 
+                                                   class="btn btn-primary btn-sm">
+                                                    {% if result.marksheet_file %}
+                                                        <i class="fas fa-sync-alt me-1"></i>Update
+                                                    {% else %}
+                                                        <i class="fas fa-upload me-1"></i>Upload
+                                                    {% endif %}
+                                                </a>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        No semester results available.
+                        {% if current_user.role == 'teacher' %}
+                            <a href="{{ url_for('upload_semester_result') }}" class="alert-link">Upload a result now!</a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

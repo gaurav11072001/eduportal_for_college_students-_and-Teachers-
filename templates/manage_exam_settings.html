@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Exam Settings</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fc;
+            font-family: 'Nunito', sans-serif;
+        }
+        .container {
+            max-width: 1000px;
+            margin-top: 2rem;
+        }
+        .card {
+            border: none;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        }
+        .card-header {
+            background: #1a237e;
+            color: white;
+        }
+        .time-limit-info {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+        .active-badge {
+            background-color: #28a745;
+        }
+        .inactive-badge {
+            background-color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Back Button -->
+        <div class="mb-4">
+            <a href="{{ url_for('teacher_dashboard') }}" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+
+        <div class="row">
+            <!-- Create New Exam Settings -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Create Exam Settings</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" action="{{ url_for('manage_exam_settings') }}">
+                            <div class="mb-3">
+                                <label for="exam_name" class="form-label">Exam Name</label>
+                                <input type="text" class="form-control" id="exam_name" name="exam_name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="time_limit" class="form-label">Time Limit (minutes)</label>
+                                <input type="number" class="form-control" id="time_limit" name="time_limit" 
+                                       value="60" min="1" max="180" required>
+                                <div class="time-limit-info">
+                                    Set the total time allowed for the exam (1-180 minutes)
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-save me-2"></i>Save Settings
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Existing Exam Settings -->
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-list me-2"></i>Existing Exam Settings</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if exam_settings %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Exam Name</th>
+                                            <th>Time Limit</th>
+                                            <th>Created</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for setting in exam_settings %}
+                                            <tr>
+                                                <td>{{ setting.exam_name }}</td>
+                                                <td>{{ setting.time_limit }} minutes</td>
+                                                <td>{{ setting.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                                <td>
+                                                    <span class="badge {% if setting.is_active %}active-badge{% else %}inactive-badge{% endif %}">
+                                                        {% if setting.is_active %}Active{% else %}Inactive{% endif %}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    {% if not setting.is_active %}
+                                                        <button class="btn btn-sm btn-success" 
+                                                                onclick="toggleExamSetting({{ setting.id }})">
+                                                            <i class="fas fa-check me-1"></i>Activate
+                                                        </button>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                No exam settings created yet.
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleExamSetting(settingId) {
+            if (confirm('Are you sure you want to activate this exam setting?')) {
+                fetch(`/toggle_exam_setting/${settingId}`, {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Error updating exam setting');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error updating exam setting');
+                });
+            }
+        }
+    </script>
+</body>
+</html> 
